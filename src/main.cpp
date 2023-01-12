@@ -30,9 +30,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 
-
 #include <TaskScheduler.h>
-
 
 #include "config.h"
 #include "networking.h"
@@ -51,11 +49,9 @@ bool mqtt_connected = false;
 
 // extern data_config WM_config;
 
-
 void task_send_mqtt_hearbeatCallback();
 void task_check_connectivityCallback();
 void task_scheduled_rebootCallback();
-
 
 #define SCHEDULED_REBOOT_TIMER 1 * 25 * 60 * 60 * 1000 // Hours
 #define SCHEDULED_CONNECTIVITY_TIMER 5 * 60 * 1000     // Minutes
@@ -67,12 +63,19 @@ Task task_scheduled_reboot(SCHEDULED_REBOOT_TIMER, TASK_FOREVER, &task_scheduled
 
 Scheduler runner;
 
-
-
 String device_mac = "";
 
-
 extern pms5003data data;
+
+ENV_Sensor Env_Sensor;
+
+
+extern unsigned long loopsPM;       // Counter to track executions
+extern unsigned long dataLoopsPM;   // Loops with data
+
+extern int previousDiagnosticsMillis;
+extern int previousDataMillis;
+extern int previousSystemMillis;
 
 /**********************************************************/
 
@@ -82,6 +85,27 @@ extern pms5003data data;
 String rssi = "RSSI --";
 String packSize = "--";
 String packet;
+
+void read_sensors_data()
+{
+  int readBytes = Env_Sensor.read();
+  if (readBytes > 0)
+  {
+    String sensorData = Env_Sensor.sensor_data_buffer;
+    debug_string("Sensor Read " + String(readBytes) + " bytes", true);
+    if (wifi_Online)
+    {
+      Serial.print("sending data to mqtt.....");
+      send_mqtt_string("sensor", sensorData, false);
+      Serial.println("Done");
+    }
+  }
+  else
+  {
+    debug_string("Error reading sensor");
+  }
+
+}
 
 /******************************************
  * setup_hardawre()
@@ -196,17 +220,33 @@ void setup()
   delay(1000);
 }
 
-
 void loop()
 {
-  Serial.println("**********************");
+  // Serial.println("*********** main loop ***********");
 
-  read_pm();
-  read_voc();
-  read_aht();
-  read_lumen();
-  // read_mic(); // Need to move to a seperate thread for Microphone DB Sensor
-  display_data_oled();
-  delay(1000);
+  loopsPM++;
+  process_cli();     // Process Serial port based commands recevied
+  runner.execute();  // Timer execution. Runs timed events like connectivity check, scheduled reboot. etc.
+  mqttclient.loop(); // Process messges received by MQTT subscription
+
+
+  unsigned long currentMillis = millis(); // Check current time
+
+    // Send data based on data frequency. default is every 10 seconds
+    if (currentMillis - previousDataMillis >= WM_config.device_config.data_frequency * 1000)
+    {
+
+      dataLoopsPM++; // Count how many times data loop was executed
+      previousDataMillis = currentMillis;
+      read_sensors_data();
+      display_data_oled();
+    }
+
+  // read_pm();
+  // read_voc();
+  // read_aht();
+  // read_lumen();
+  // // read_mic(); // Need to move to a seperate thread for Microphone DB Sensor
+  // delay(1000);
   // counter++;
 }

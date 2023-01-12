@@ -33,6 +33,12 @@ bool is_mic_present = false;
 unsigned int counter = 0;
 
 
+// StaticJsonDocument<256> doc;
+// char sensor_data_buffer[256];
+
+
+int pm1 = 0, pm25 = 0, pm10 = 0, voc = 0,
+ co2 = 0, Temp = 0, humi = 0, lux = 0, rawh2 = 0, raweth = 0;
 
 
 /********************************/
@@ -118,7 +124,7 @@ void check_sensors()
   if (!tsl.begin())
   {
     /* There was a problem detecting the TSL2561 ... check your connections */
-    Serial.print("Ooops, no TSL2561 detected ... Check your wiring or I2C ADDR!");
+    Serial.println("Ooops, no TSL2561 detected ... Check your wiring or I2C ADDR!");
   }
   else
   {
@@ -209,17 +215,21 @@ void read_pm()
     {
       // reading data was successful!
       Serial.print("PM 1.0: ");
-      Serial.println(data.pm10_standard);
+      Serial.print(data.pm10_standard);
       Serial.print("\t\tPM 2.5: ");
       Serial.print(data.pm25_standard);
       Serial.print("\t\tPM 10: ");
       Serial.println(data.pm100_standard);
       break;
     }
-
     else
+    {
       delay(10);
+    }
   }
+  pm1 = data.pm10_standard;
+  pm25 = data.pm25_standard;
+  pm10 = data.pm100_standard;
 }
 
 /**************************************************************************/
@@ -236,6 +246,7 @@ void read_lumen()
   /* Display the results (light is measured in lux) */
   if (event_lux.light)
   {
+    lux = event_lux.light;
     Serial.print(event_lux.light);
     Serial.println(" lux");
   }
@@ -256,9 +267,13 @@ void read_aht()
 {
 
   aht.getEvent(&humidity, &temp); // populate temp and humidity objects with fresh data
+
+  Temp = temp.temperature;
+  humi = humidity.relative_humidity;
+
   Serial.print("Temperature: ");
   Serial.print(temp.temperature);
-  Serial.print("\t\tdegrees C");
+  Serial.print("\tdegrees C");
   Serial.print("\t\tHumidity: ");
   Serial.print(humidity.relative_humidity);
   Serial.println("% rH");
@@ -276,6 +291,10 @@ void read_voc()
     Serial.println("Measurement failed");
     return;
   }
+
+  voc = sgp.TVOC;
+  co2 = sgp.eCO2;
+
   Serial.print("TVOC ");
   Serial.print(sgp.TVOC);
   Serial.print(" ppb\t");
@@ -288,7 +307,11 @@ void read_voc()
     Serial.println("Raw Measurement failed");
     return;
   }
-  Serial.print("H2 : ");
+
+  rawh2 = sgp.rawH2;
+  raweth = sgp.rawEthanol;
+
+  Serial.print("\tH2 : ");
   Serial.print(sgp.rawH2);
   Serial.print(" \t");
   Serial.print("Raw Ethanol ");
@@ -595,4 +618,65 @@ void display_data_oled()
   // Heltec.display->drawString(100, 40, String(data.pm100_standard));
 
   Heltec.display->display();
+}
+
+
+
+
+
+ENV_Sensor::ENV_Sensor()
+{
+} 
+
+
+int ENV_Sensor::read(void)
+{
+
+  doc.garbageCollect();
+  doc.clear();
+
+  for (int i = 0; i < 256; ++i)
+    sensor_data_buffer[i] = (char)0;
+
+  if (is_voc_present)
+  {
+    read_pm();
+
+    doc["AQPM1"] = pm1;
+    doc["AQPM25"] = pm25;
+    doc["AQPM10"] = pm10;
+  }
+
+  if(is_voc_present)
+  {
+    read_voc();
+    doc["AQVOC"] = voc;
+    doc["AQCO2"] = co2;
+    doc["AQRH2"] = rawh2;
+    doc["AQREth"] = raweth;
+  }
+
+  if (is_temp_present)
+  {
+    read_aht();
+    doc["AQTemp"] = Temp;
+    doc["AQHumi"] = humi;
+  }
+
+  if(is_light_present)
+  {
+    read_lumen();
+    doc["lux"] = lux;
+  }
+
+  doc["metadata"]["type"] = "ENV";
+  doc["metadata"]["version"] = "1.0";
+  doc["metadata"]["hardawre"] = "Heltec";
+
+  serializeJson(doc, sensor_data_buffer);
+  Serial.print("##");
+  Serial.println(sensor_data_buffer);
+
+  return (measureJson(doc));
+
 }

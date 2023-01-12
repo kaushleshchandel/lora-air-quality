@@ -14,7 +14,6 @@ extern bool mqtt_connected;
 
 extern bool deviceHasWifiCreds;
 
-
 extern data_config WM_config;
 
 // extern WiFiClient client;

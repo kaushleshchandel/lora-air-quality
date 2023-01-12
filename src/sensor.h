@@ -8,6 +8,8 @@
 
 #include <driver/i2s.h>
 
+#include <ArduinoJson.h>
+
 #define PM_RX 13 //18
 #define PM_TX 12 //19
 
@@ -20,6 +22,30 @@ struct pms5003data
   uint16_t particles_03um, particles_05um, particles_10um, particles_25um, particles_50um, particles_100um;
   uint16_t unused;
   uint16_t checksum;
+};
+
+
+class ENV_Sensor
+{
+  public:
+  ENV_Sensor();
+
+  StaticJsonDocument<256> doc;
+  char sensor_data_buffer[256];
+
+  int read();
+
+  int _pm1 = 0;
+  int _pm25 = 0;
+  int _pm10 = 0;
+  int _voc = 0;
+  int _co2 = 0;
+  int _temp = 0;
+  int _humi = 0;
+  int _lux = 0;
+  int _rawh2 = 0;
+  int _raweth = 0;
+
 };
 
 

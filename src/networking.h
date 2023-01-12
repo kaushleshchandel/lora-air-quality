@@ -20,6 +20,7 @@ bool useStoredtWifi = false;
 
 extern data_config WM_config;
 
+extern bool deviceHasWifiCreds;
 
 void check_WiFi(void)
 {
@@ -155,6 +156,7 @@ bool new_wifi_password(void)
 
                 strcpy(WM_config.WiFi_Creds.wifi_ssid_local, WM_config.WiFi_Creds.wifi_ssid);
                 strcpy(WM_config.WiFi_Creds.wifi_pw_local, WM_config.WiFi_Creds.wifi_pw[i]);
+                save_config_file();
 
                 break;
             }
@@ -180,7 +182,7 @@ bool wifi_connect(void)
 
     debug_string("Start WiFi", true);
 
-    if (useStoredtWifi)
+    if (deviceHasWifiCreds)
     {
         res = connect_to_stored_wifi();
     }

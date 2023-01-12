@@ -19,6 +19,21 @@ bool deviceHasConfig;   // Set to true if device EEPROM has stored configuration
 bool debugMode = false; // Is device in DebugMode ? when in debug mode, all serial messages are sent to MQTT
 bool deviceHasWifiCreds = false;
 
+// Coutners for Timers
+int previousDiagnosticsMillis = 0;
+int previousDataMillis;
+int previousSystemMillis;
+
+// Counters for diagnositcs
+unsigned long packetsSentPM = 0; // MQTT packets sent
+unsigned long packetsFailPM = 0; // MQTT packet sent failure
+unsigned long dataLoopsPM = 0;   // Loops with data
+unsigned long loopsPM = 0;       // Counter to track executions
+unsigned long lastpacketsSentPM = 1;
+unsigned long wifiErrors = 0;       // Wifi Connectivity Errors
+unsigned long mqttErrors = 0;       // MQTT Error
+unsigned long sensorReadErrors = 0; // Sensor read errors
+
 
 StaticJsonDocument<256> doc;
 
@@ -262,10 +277,12 @@ void check_configurations()
 
     if (ssid == "")
     {
+        debug_string("doesn't have wifi creds");   
         deviceHasWifiCreds = false;
     }
     else
     {
+        debug_string("has stored wifi creds");
         deviceHasWifiCreds = true;
     }
 

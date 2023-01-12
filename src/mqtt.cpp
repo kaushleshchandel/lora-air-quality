@@ -14,14 +14,14 @@
 #include "common.h"
 
 // Counters for diagnositcs
-unsigned long packetsSentPM = 0; // MQTT packets sent
-unsigned long packetsFailPM = 0; // MQTT packet sent failure
-unsigned long dataLoopsPM = 0;   // Loops with data
-unsigned long loopsPM = 0;       // Counter to track executions
-unsigned long lastpacketsSentPM = 1;
-unsigned long wifiErrors = 0;       // Wifi Connectivity Errors
-unsigned long mqttErrors = 0;       // MQTT Error
-unsigned long sensorReadErrors = 0; // Sensor read errors
+extern unsigned long packetsSentPM; // MQTT packets sent
+extern unsigned long packetsFailPM; // MQTT packet sent failure
+extern unsigned long dataLoopsPM;   // Loops with data
+extern unsigned long loopsPM;       // Counter to track executions
+extern unsigned long lastpacketsSentPM;
+extern unsigned long wifiErrors;       // Wifi Connectivity Errors
+extern unsigned long mqttErrors;       // MQTT Error
+extern unsigned long sensorReadErrors; // Sensor read errors
 
 extern bool debugMode;
 extern bool wifi_Online;
