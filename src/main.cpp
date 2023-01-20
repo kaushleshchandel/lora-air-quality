@@ -42,7 +42,18 @@
 
 #include "common.h"
 
+#include "lora_heltec.h"
+
 /********************sagar created variables***************/
+
+// on board led
+extern int ledPin;
+extern bool lora_data_sent;
+int lora_counter = 0;
+
+char data_lora[300];
+int data_bytes = 0;
+
 bool wifi_available = false;
 bool wifi_Online = false;
 bool mqtt_connected = false;
@@ -69,9 +80,8 @@ extern pms5003data data;
 
 ENV_Sensor Env_Sensor;
 
-
-extern unsigned long loopsPM;       // Counter to track executions
-extern unsigned long dataLoopsPM;   // Loops with data
+extern unsigned long loopsPM;     // Counter to track executions
+extern unsigned long dataLoopsPM; // Loops with data
 
 extern int previousDiagnosticsMillis;
 extern int previousDataMillis;
@@ -92,6 +102,11 @@ void read_sensors_data()
   if (readBytes > 0)
   {
     String sensorData = Env_Sensor.sensor_data_buffer;
+    
+    // memcpy(data_lora, Env_Sensor.sensor_data_buffer, readBytes);
+    memcpy(data_lora, Env_Sensor.compressed_data.c_str(), readBytes);
+    data_bytes = Env_Sensor.compressed_bytes;
+
     debug_string("Sensor Read " + String(readBytes) + " bytes", true);
     if (wifi_Online)
     {
@@ -104,7 +119,6 @@ void read_sensors_data()
   {
     debug_string("Error reading sensor");
   }
-
 }
 
 /******************************************
@@ -121,6 +135,10 @@ void setup_hardawre()
   Heltec.display->setFont(ArialMT_Plain_10);
   delay(1500);
   Heltec.display->clear();
+
+  // on board led...
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
 
   device_mac = WiFi.macAddress();
   device_mac.replace(":", "");
@@ -151,8 +169,8 @@ void logo()
   Heltec.display->display();
 }
 
-/********************************/
-/********************************/
+/************************************************/
+/************************************************/
 void setup()
 {
   Serial.begin(115200); // Start the Serial Port
@@ -192,6 +210,8 @@ void setup()
     debug_string("Device mac : " + device_mac);
   }
 
+  init_lora();
+
   // Initalize the sensors
   check_sensors();
 
@@ -229,24 +249,28 @@ void loop()
   runner.execute();  // Timer execution. Runs timed events like connectivity check, scheduled reboot. etc.
   mqttclient.loop(); // Process messges received by MQTT subscription
 
+  // lora loop.....
+  lora_loop();
 
   unsigned long currentMillis = millis(); // Check current time
 
-    // Send data based on data frequency. default is every 10 seconds
-    if (currentMillis - previousDataMillis >= WM_config.device_config.data_frequency * 1000)
-    {
+  // Send data based on data frequency. default is every 10 seconds
+  if (currentMillis - previousDataMillis >= WM_config.device_config.data_frequency * 1000)
+  {
 
-      dataLoopsPM++; // Count how many times data loop was executed
-      previousDataMillis = currentMillis;
-      read_sensors_data();
-      display_data_oled();
+    dataLoopsPM++; // Count how many times data loop was executed
+    previousDataMillis = currentMillis;
+    read_sensors_data();
+    lora_counter++;
+    Serial.println("Lora Counter :" + String(lora_counter));
+
+    if (lora_data_sent && lora_counter >= 30)
+    {
+      lora_counter = 0;
+      lora_data_sent = false;
+      send_data_over_lora(data_lora, data_bytes);
     }
 
-  // read_pm();
-  // read_voc();
-  // read_aht();
-  // read_lumen();
-  // // read_mic(); // Need to move to a seperate thread for Microphone DB Sensor
-  // delay(1000);
-  // counter++;
+    display_data_oled();
+  }
 }

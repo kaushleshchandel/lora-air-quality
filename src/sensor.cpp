@@ -635,16 +635,28 @@ int ENV_Sensor::read(void)
   doc.garbageCollect();
   doc.clear();
 
+  // String data_new = "";
+  String active_sensor = "";
+
+  compressed_data = "";
+
   for (int i = 0; i < 256; ++i)
     sensor_data_buffer[i] = (char)0;
 
-  if (is_voc_present)
+  if (is_aq_present)
   {
     read_pm();
 
     doc["AQPM1"] = pm1;
     doc["AQPM25"] = pm25;
     doc["AQPM10"] = pm10;
+
+    compressed_data += String(pm1) + ":" + String(pm25) + ":" + String(pm10) + ":";
+    active_sensor +="1:";
+  }
+  else
+  {
+    active_sensor +="0:";
   }
 
   if(is_voc_present)
@@ -654,19 +666,41 @@ int ENV_Sensor::read(void)
     doc["AQCO2"] = co2;
     doc["AQRH2"] = rawh2;
     doc["AQREth"] = raweth;
+
+    compressed_data += String(voc) + ":" + String(co2) + ":";
+    active_sensor +="1:";
   }
+  else
+  {
+    active_sensor +="0:";
+  }
+
 
   if (is_temp_present)
   {
     read_aht();
     doc["AQTemp"] = Temp;
     doc["AQHumi"] = humi;
+
+    compressed_data += String(Temp) + ":" + String(humi) + ":";
+    active_sensor +="1:";
+  }
+  else
+  {
+    active_sensor +="0:";
   }
 
   if(is_light_present)
   {
     read_lumen();
     doc["lux"] = lux;
+
+    compressed_data += String(lux) + ":";
+    active_sensor +="1:";
+  }
+  else
+  {
+    active_sensor +="0:";
   }
 
   doc["metadata"]["type"] = "ENV";
@@ -676,6 +710,13 @@ int ENV_Sensor::read(void)
   serializeJson(doc, sensor_data_buffer);
   Serial.print("##");
   Serial.println(sensor_data_buffer);
+
+  compressed_data += "," + active_sensor;
+
+  Serial.println(compressed_data);
+
+  compressed_bytes = compressed_data.length();
+  // Serial.println(compressed_data.length());
 
   return (measureJson(doc));
 

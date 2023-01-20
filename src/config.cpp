@@ -277,12 +277,12 @@ void check_configurations()
 
     if (ssid == "")
     {
-        debug_string("doesn't have wifi creds");   
+        debug_string("device doesn't have wifi creds");   
         deviceHasWifiCreds = false;
     }
     else
     {
-        debug_string("has stored wifi creds");
+        debug_string("device has stored wifi creds");
         deviceHasWifiCreds = true;
     }
 

@@ -33,6 +33,9 @@ class ENV_Sensor
   StaticJsonDocument<256> doc;
   char sensor_data_buffer[256];
 
+  String compressed_data;
+  int compressed_bytes;
+
   int read();
 
   int _pm1 = 0;

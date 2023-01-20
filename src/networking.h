@@ -185,6 +185,11 @@ bool wifi_connect(void)
     if (deviceHasWifiCreds)
     {
         res = connect_to_stored_wifi();
+
+        if (res == false)
+        {
+            res = new_wifi_password();
+        }
     }
     else
     {
