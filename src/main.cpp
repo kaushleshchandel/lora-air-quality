@@ -110,9 +110,7 @@ void read_sensors_data()
     debug_string("Sensor Read " + String(readBytes) + " bytes", true);
     if (wifi_Online)
     {
-      Serial.print("sending data to mqtt.....");
       send_mqtt_string("sensor", sensorData, false);
-      Serial.println("Done");
     }
   }
   else
@@ -264,7 +262,7 @@ void loop()
     lora_counter++;
     Serial.println("Lora Counter :" + String(lora_counter));
 
-    if (lora_data_sent && lora_counter >= 30)
+    if (lora_data_sent && lora_counter >= 60)
     {
       lora_counter = 0;
       lora_data_sent = false;

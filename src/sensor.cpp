@@ -693,7 +693,7 @@ int ENV_Sensor::read(void)
   if(is_light_present)
   {
     read_lumen();
-    doc["lux"] = lux;
+    doc["Lux"] = lux;
 
     compressed_data += String(lux) + ":";
     active_sensor +="1:";
@@ -711,7 +711,7 @@ int ENV_Sensor::read(void)
   Serial.print("##");
   Serial.println(sensor_data_buffer);
 
-  compressed_data += "," + active_sensor;
+  compressed_data += active_sensor;
 
   Serial.println(compressed_data);
 

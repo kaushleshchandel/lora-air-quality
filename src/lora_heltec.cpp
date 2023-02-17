@@ -17,7 +17,8 @@ static const PROGMEM u1_t NWKSKEY[16] = {0xbc, 0xa4, 0x6a, 0x13, 0x0e, 0x9f, 0x7
 static const PROGMEM u1_t APPSKEY[16] = {0x14, 0x0b, 0xf5, 0x03, 0xa1, 0x2d, 0x31, 0x6b, 0x6b, 0x17, 0x2f, 0xd1, 0x1a, 0xf6, 0xaf, 0xc8};
 static const u4_t DEVADDR = 0x00f3a25b; // <-- Change this address for every node!
 
-static uint8_t mydata[300] = "Hi from Sagar!";
+// static uint8_t mydata[300] = "Hi from Sagar!";
+static uint8_t mydata[] = "Hi from Sagar!";
 
 static osjob_t sendjob;
 
@@ -215,6 +216,29 @@ void onEvent(ev_t ev)
     }
 }
 
+
+// void do_send(osjob_t *j)
+// {
+//   // Check if there is not a current TX/RX job running
+// //   u8x8.drawString(0, 4, "Button Pressed");
+//   Serial.println(LMIC.opmode);
+//   if (LMIC.opmode & OP_TXRXPEND)
+//   {
+//     Serial.println(F("OP_TXRXPEND, not sending"));
+//     // u8x8.drawString(0, 1, "OP_TXRXPEND, not sending");
+//   }
+//   else
+//   {
+//     Serial.println(F("Packet sending"));
+//     // Prepare upstream data transmission at the next possible time.
+//     LMIC_setTxData2(2, mydata, sizeof(mydata) - 1, 0);
+//     Serial.println(F("Packet queued"));
+//     // u8x8.drawString(0, 1, "Packet queued");
+//   }
+//   // Next TX is scheduled after TX_COMPLETE event.
+// }
+
+
 void do_send(osjob_t *j , char * data, int sizebytes)
 {
     // Check if there is not a current TX/RX job running
@@ -232,7 +256,7 @@ void do_send(osjob_t *j , char * data, int sizebytes)
         memcpy(mydata, data, sizebytes);
 
         // LMIC_setTxData2(1, mydata, sizeof(mydata) - 1, 0);
-        LMIC_setTxData2(1, mydata, sizebytes, 0);
+        LMIC_setTxData2(1, mydata, sizebytes, 1);
         Serial.println(F("Packet queued"));
         Serial.println(F(str));
         // u8x8.drawString(0, 1, "Packet queued");

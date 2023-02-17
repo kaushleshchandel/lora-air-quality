@@ -167,7 +167,7 @@ void task_check_connectivityCallback()
     if (uptime > 5)
     {
       debug_string("Connectivity problem. Reboot");
-      esp_restart();
+      // esp_restart();     // testing purpose commented
     }
   }
 
