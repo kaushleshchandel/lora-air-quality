@@ -1,29 +1,6 @@
-/*
 
-  The onboard OLED display is SSD1306 driver and I2C interface. In order to make the
-  OLED correctly operation, you should output a high-low-high(1-0-1) signal by soft-
-  ware to OLED's reset pin, the low-level signal at least 5ms.
-
-  OLED pins to ESP32 GPIOs via this connecthin:
-  OLED_SDA -- GPIO4
-  OLED_SCL -- GPIO15
-  OLED_RST -- GPIO16
-
-
-  The Writing diagram for ESP32
-
-  I2C : Connected to GPIO04 and GPIO15
-  Air Quality : Connected to GPIO18 & GPIO19
-
-  Mic : Connected to GPIO 25, GPIO32, and GPIO33
-  MIC_SCK --
-  MIC_WS  --
-  MIC_LR  --
-  MIC_VDD --
-  MIC_SD  --
-
-*/
-
+#include "gpio.h"
+#include "config.h"
 #include "heltec.h"
 #include "images.h"
 #include <Wire.h>
@@ -32,14 +9,6 @@
 #include <Adafruit_TSL2561_U.h>
 #include <driver/i2s.h>
 #include <SoftwareSerial.h>
-
-// Connections to I2S microphone
-#define I2S_WS 25
-#define I2S_SD 33
-#define I2S_SCK 32
-
-#define PM_RX 18
-#define PM_TX 19
 
 // Use I2S Processor
 #define I2S_PORT I2S_NUM_0
