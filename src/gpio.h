@@ -20,12 +20,16 @@
   I2C : Connected to GPIO04 and GPIO15
   Air Quality : Connected to GPIO18 & GPIO19
 
+  //GPIO 22 (SCL) and GPIO 21 (SDA)
+
   Mic : Connected to GPIO 25, GPIO32, and GPIO33
   MIC_SCK --
   MIC_WS  --
   MIC_LR  --
   MIC_VDD --
   MIC_SD  --
+
+
 
 */
 
