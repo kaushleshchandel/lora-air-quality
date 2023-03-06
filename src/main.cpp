@@ -102,7 +102,7 @@ void read_sensors_data()
   if (readBytes > 0)
   {
     String sensorData = Env_Sensor.sensor_data_buffer;
-    
+
     // memcpy(data_lora, Env_Sensor.sensor_data_buffer, readBytes);
     memcpy(data_lora, Env_Sensor.compressed_data.c_str(), readBytes);
     data_bytes = Env_Sensor.compressed_bytes;
@@ -238,6 +238,8 @@ void setup()
   delay(1000);
 }
 
+bool fresh_boot = true;
+
 void loop()
 {
   // Serial.println("*********** main loop ***********");
@@ -252,6 +254,16 @@ void loop()
 
   unsigned long currentMillis = millis(); // Check current time
 
+  if (fresh_boot)
+  {
+
+    lora_counter = 0;
+    lora_data_sent = false;
+    send_data_over_lora(data_lora, data_bytes);
+
+    fresh_boot = false;
+  }
+
   // Send data based on data frequency. default is every 10 seconds
   if (currentMillis - previousDataMillis >= WM_config.device_config.data_frequency * 1000)
   {
@@ -262,9 +274,9 @@ void loop()
     lora_counter++;
     Serial.println("Lora Counter :" + String(lora_counter));
 
-    if (lora_data_sent && lora_counter >= 60)
+    if (lora_data_sent && lora_counter >= 18)
     {
-      lora_counter = 0;
+      lora_counter = 1;
       lora_data_sent = false;
       send_data_over_lora(data_lora, data_bytes);
     }
