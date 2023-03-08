@@ -412,7 +412,6 @@ void hal_printf_init() {
 
 #endif // !defined(ESP8266) || defined(ESP31B) || defined(ESP32)
 #endif // defined(LMIC_PRINTF_TO)
-
  
 
 // hal_init_ex is a C API routine, written in C++, and it's called

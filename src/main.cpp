@@ -238,8 +238,7 @@ void setup()
   delay(1000);
 }
 
-bool fresh_boot = true;
-
+bool first_time = true;
 void loop()
 {
   // Serial.println("*********** main loop ***********");
@@ -254,14 +253,12 @@ void loop()
 
   unsigned long currentMillis = millis(); // Check current time
 
-  if (fresh_boot)
+  if (first_time)
   {
-
-    lora_counter = 0;
+    lora_counter = 1;
     lora_data_sent = false;
     send_data_over_lora(data_lora, data_bytes);
-
-    fresh_boot = false;
+    first_time = false;
   }
 
   // Send data based on data frequency. default is every 10 seconds
@@ -274,9 +271,9 @@ void loop()
     lora_counter++;
     Serial.println("Lora Counter :" + String(lora_counter));
 
-    if (lora_data_sent && lora_counter >= 18)
+    if (lora_data_sent && lora_counter >= 60)
     {
-      lora_counter = 1;
+      lora_counter = 0;
       lora_data_sent = false;
       send_data_over_lora(data_lora, data_bytes);
     }
