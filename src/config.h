@@ -1,4 +1,7 @@
 
+#ifndef CONFIG_H /* include guards */
+#define CONFIG_H
+
 #include <Arduino.h>
 
 // file system format
@@ -6,6 +9,18 @@
 #include <LITTLEFS.h> // https://github.com/lorol/LITTLEFS
 #define FileFS LITTLEFS
 #define CONFIG_FILENAME F("/config.dat")
+
+
+#include <lmic.h>
+#include <hal/hal.h>
+#include <SPI.h>
+// #include <U8x8lib.h>
+
+#include <Wire.h>
+static const PROGMEM u1_t NWKSKEY[16] = {0xbc, 0xa4, 0x6a, 0x13, 0x0e, 0x9f, 0x7e, 0x4e, 0xba, 0x79, 0xa6, 0xcb, 0x02, 0x6f, 0x8c, 0x3c};
+static const PROGMEM u1_t APPSKEY[16] = {0x14, 0x0b, 0xf5, 0x03, 0xa1, 0x2d, 0x31, 0x6b, 0x6b, 0x17, 0x2f, 0xd1, 0x1a, 0xf6, 0xaf, 0xc8};
+static const u4_t DEVADDR = 0x00f3a25b; // <-- Change this address for every node!
+
 
 
 // software version info
@@ -72,3 +87,5 @@ void set_defaults();
 void save_config_file(void);
 bool read_config_file();
 void format_config_file(void);
+
+#endif

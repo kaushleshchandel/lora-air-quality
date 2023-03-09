@@ -1045,7 +1045,7 @@ void process_cli()
             String command = commandString.substring(0, sep);
             String arguments = commandString.substring(sep + 1);
 
-            debug_string("Device Command : " + command + "=" + arguments, true);
+         //   debug_string("Device Command : " + command + "=" + arguments, true);
             process_command(command, arguments, false, false);
         }
     }

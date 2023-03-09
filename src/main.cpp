@@ -24,6 +24,7 @@
 
 */
 
+#include "config.h"
 #include "heltec.h"
 #include "images.h"
 
@@ -32,10 +33,10 @@
 
 #include <TaskScheduler.h>
 
-#include "config.h"
 #include "networking.h"
 #include "sensor.h"
 #include "types.h"
+
 #include "mqtt.h"
 #include "ota.h"
 #include "fx.h"
@@ -86,6 +87,7 @@ extern unsigned long dataLoopsPM; // Loops with data
 extern int previousDiagnosticsMillis;
 extern int previousDataMillis;
 extern int previousSystemMillis;
+
 
 /**********************************************************/
 
